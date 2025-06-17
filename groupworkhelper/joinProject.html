@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Join Project</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>Join Project</h2>
+    <input type="number" id="projectId" placeholder="Enter Project ID" required />
+    <button onclick="joinProject()">Join</button>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    function joinProject() {
+      const projectId = document.getElementById('projectId').value;
+      const messageBox = document.getElementById('message');
+
+      if (!projectId) {
+        messageBox.textContent = "Please enter a Project ID.";
+        messageBox.style.color = "red";
+        return;
+      }
+
+      fetch("joinProject.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ idProject: parseInt(projectId) })
+      })
+      .then(res => res.json())
+      .then(data => {
+        messageBox.textContent = data.message;
+        messageBox.style.color = data.success ? "green" : "red";
+        if (data.success) {
+        setTimeout(() => {
+            window.location.href = "main.php";
+        }, 1500);
+      }
+      })
+      .catch(error => {
+        messageBox.textContent = "Error connecting to server.";
+        messageBox.style.color = "red";
+      });
+    }
+  </script>
+
+</body>
+</html>

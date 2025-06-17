@@ -1,0 +1,56 @@
+a{
+    position:fixed;
+    top: 20px;
+    right: 20px;
+}
+body{
+    background-color: #cae6fa;
+}
+table{
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f3fbff;
+}
+th{
+    border: 1px solid #53a4fa;  
+    padding: 12px;
+    background-color: #6ab2ff; 
+    color: white;
+    text-align: center;
+}
+td{
+    border: 0.5px solid #3c9aff; 
+    padding: 10px;
+    
+}
+tr:hover {
+    background-color: #d7f2ff;
+}
+h2{
+    font-size: 28px;
+    color: #333;
+    text-align: center; 
+}
+
+button {
+    background-color: #03A9F4; /* Light blue */
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    margin: 4px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.back_button {
+    background-color: #5a8aca;  
+}
+.sumbit_button{
+    margin-right:auto;
+}
+button:hover {
+    background-color: #0288D1; /* Darker light blue on hover */
+}

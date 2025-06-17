@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="register.css">
+        <title>Register</title>
+    </head>
+    <body>
+        <div class="register-container">
+            <h1>Register</h1>
+            <form id="registerForm">
+                <div class="register-form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                    
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" required>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+
+                    <label for="phoneNum">phone number:</label>
+                    <input type="tel" id="phoneNum" name="phoneNum" required>
+
+                    <label for="dob">Date of Birth:</label>
+                    <input type="date" id="dob" name="dob" required>
+
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">-- Select --</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                        <option value="preferNotToSay">Prefer not to say</option>
+                    </select>
+                    <label for="role">Role :</label>
+                    <select id="role" name="role" required>
+                        <option value="">-- Select --</option>
+                        <option value="Student">Student</option>
+                        <option value="Teacher">Teacher</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+
+                    <button type="submit">Register</button>
+                </div>
+                <div class="form-group">
+                    <p>Already have an account? <a href="login.html">Login here</a></p>
+                </div>
+            </form>
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+        </div>
+
+     <script>
+            document.getElementById('registerForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phoneNum = document.getElementById('phoneNum').value.trim();
+                const dob = document.getElementById('dob').value;
+                const gender = document.getElementById('gender').value;
+                const role = document.getElementById('role').value;
+
+                // 密码确认检查
+                if (password !== confirmPassword) {
+                    document.getElementById('error-message').textContent = 'Passwords do not match.';
+                    document.getElementById('success-message').textContent = '';
+                    return;
+                }
+
+                // 发起注册请求
+                fetch('register.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        email,
+                        phoneNum,
+                        dob,
+                        gender,
+                        firstName,
+                        lastName,
+                        role
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('success-message').textContent = 'Registration successful!';
+                        document.getElementById('error-message').textContent = '';
+                        // 可选：跳转至登录页面
+                         window.location.href = 'login.html';
+                    } else {
+                        document.getElementById('error-message').textContent = data.message || 'Registration failed.';
+                        document.getElementById('success-message').textContent = '';
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('error-message').textContent = 'Something went wrong.';
+                    document.getElementById('success-message').textContent = '';
+                });
+            });
+        </script>
+
+    </body>
+</html>

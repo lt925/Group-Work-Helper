@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Create Group</title>
+    <style>
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-top: 10px; }
+        input, textarea, select {
+            width: 100%; padding: 8px; margin-top: 5px;
+        }
+        button { margin-top: 15px; padding: 10px 15px; }
+        .message { margin-top: 15px; font-weight: bold; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="create-group-container">
+        <h1>Create Group</h1>
+        <form id="createGroupForm">
+            <div class="form-group">
+                <label for="groupName">Group Name:</label>
+                <input type="text" id="groupName" name="groupName" required>
+
+                <label for="description">Group Description:</label>
+                <textarea id="description" name="description" required></textarea>
+
+                <label for="groupType">Group Type:</label>
+                <select id="groupType" name="groupType" required>
+                    <option value="">-- Select --</option>
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                    <option value="secret">Secret</option>
+                </select>
+
+                <button type="submit">Create Group</button>
+            </div>
+        </form>
+
+        <div id="message" class="message"></div>
+    </div>
+
+<script>
+    document.getElementById('createGroupForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); // 阻止默认提交
+
+        const form = e.target;
+        const data = {
+            groupName: form.groupName.value,
+            description: form.description.value,
+            groupType: form.groupType.value
+        };
+
+        try {
+            const response = await fetch('createGroup.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            const messageDiv = document.getElementById('message');
+
+            if (result.success) {
+                messageDiv.textContent = "✅ Group created successfully!";
+                messageDiv.className = "message success";
+                setTimeout(() => {
+                    window.location.href = "main.html";
+                }, 1000);
+            } else {
+                messageDiv.textContent = "❌ " + result.message;
+                messageDiv.className = "message error";
+            }
+        } catch (error) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = "❌ Network error!";
+            messageDiv.className = "message error";
+            console.error(error);
+        }
+    });
+</script>
+
+
+</body>
+</html>
