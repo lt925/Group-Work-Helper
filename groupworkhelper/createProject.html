@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Project</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(-45deg, #639cf7, #a7eaf9, #fbc2eb, #8c70ce);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Keyframes for gradient animation */
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .container {
+      background-color: #ffffffcc;
+      backdrop-filter: blur(10px);
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 480px;
+      transition: all 0.3s ease;
+    }
+
+    h2 {
+      text-align: center;
+      color: #6a4c93;
+      margin-bottom: 24px;
+      font-size: 28px;
+    }
+
+    label {
+      margin-top: 16px;
+      display: block;
+      font-weight: 600;
+      color: #4a4e69;
+      font-size: 15px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #f8f9fa;
+      transition: border 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #ffafcc;
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 24px;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(to right, #79befe, #c58ce5);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #ffafcc, #bde0fe);
+    }
+
+    #groupNotice {
+      text-align: center;
+      color: #e63946;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Create Project</h2>
+    <div id="groupNotice"></div>
+
+    <form id="projectForm">
+      <label for="groupSelect">Select Group</label>
+      <select id="groupSelect" name="IdGroup" required>
+        <option value="" disabled selected>Loading groups...</option>
+      </select>
+
+      <label for="projectName">Project Name</label>
+      <input type="text" id="projectName" name="projectName" placeholder="Enter project name" required />
+
+      <label for="projectDesc">Project Description</label>
+      <textarea id="projectDesc" name="description" placeholder="Enter project description" rows="4" required></textarea>
+
+      <button type="submit">Create Project</button>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const groupSelect = document.getElementById('groupSelect');
+      const groupNotice = document.getElementById('groupNotice');
+      const submitButton = document.querySelector('button');
+
+      fetch('getGroups.php')
+        .then(res => res.json())
+        .then(data => {
+          groupSelect.innerHTML = ''; // Clear existing options
+
+          if (!data.success || data.groups.length === 0) {
+            groupSelect.style.display = 'none';
+            submitButton.disabled = true;
+            groupNotice.textContent = data.message || 'You haven\'t joined any group yet.';
+          } else {
+            groupNotice.textContent = '';
+            data.groups.forEach(group => {
+              const option = document.createElement('option');
+              option.value = group.idGroup;
+              option.textContent = group.groupName;
+              groupSelect.appendChild(option);
+            });
+          }
+        })
+        .catch(() => {
+          groupNotice.textContent = 'Failed to load groups. Please try again later.';
+          groupSelect.style.display = 'none';
+          submitButton.disabled = true;
+        });
+
+      document.getElementById('projectForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        fetch('createProject.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Project created successfully!');
+            setTimeout(() => window.location.href = 'main.php', 1000);
+          } else {
+            alert('Error: ' + data.message);
+          }
+        })
+        .catch(err => {
+          alert('Server error: ' + err.message);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

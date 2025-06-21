@@ -1,0 +1,10 @@
+Array
+(
+    [users] => Array
+        (
+            [idUser] => 1
+            [username] => LT
+            [role] => Teacher
+        )
+
+)

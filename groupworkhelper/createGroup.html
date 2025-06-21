@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Group</title>
+  <style>
+    :root {
+      --pastel-blue: #68b9ff;
+      --pastel-pink: #fcbbd7;
+      --pastel-purple: #ae85ea;
+      --text-color: #333;
+      --btn-color: #b388eb;
+      --btn-hover: #9c6fde;
+      --input-bg: #f3f3f3;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--pastel-blue), var(--pastel-pink), var(--pastel-purple));
+      background-size: 300% 300%;
+      animation: bgMove 10s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background-color: var(--white);
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      max-width: 600px;
+      width: 100%;
+      padding: 40px 30px;
+      transition: 0.3s;
+    }
+
+    h1 {
+      color: var(--text-color);
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 26px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      color: #555;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--input-bg);
+      font-size: 15px;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      background-color: #fff;
+      border: 1px solid var(--btn-color);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--btn-color);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: var(--btn-hover);
+    }
+
+    .message {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: bold;
+      display: none;
+    }
+
+    .message.success {
+      background-color: #e6f4ea;
+      color: #276738;
+      border: 1px solid #a8dfb4;
+    }
+
+    .message.error {
+      background-color: #fdecea;
+      color: #912d2b;
+      border: 1px solid #f5c6cb;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Create New Group</h1>
+    <form id="createGroupForm">
+      <div class="form-group">
+        <label for="groupName">Group Name</label>
+        <input type="text" id="groupName" name="groupName" required placeholder="Enter group name" />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Group Description</label>
+        <textarea id="description" name="description" required placeholder="Describe your group's purpose"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="groupType">Group Type</label>
+        <select id="groupType" name="groupType" required>
+          <option value="">-- Select Group Type --</option>
+          <option value="public">Public (Anyone can join)</option>
+          <option value="private">Private (Approval required)</option>
+          <option value="secret">Secret (Invite only)</option>
+        </select>
+      </div>
+
+      <button type="submit">Create Group</button>
+    </form>
+
+    <div id="message" class="message"></div>
+  </div>
+
+  <script>
+    document.getElementById('createGroupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const submitButton = form.querySelector('button');
+      const messageDiv = document.getElementById('message');
+
+      // Reset message
+      messageDiv.style.display = 'none';
+      messageDiv.className = 'message';
+      messageDiv.textContent = '';
+
+      // Disable submit button
+      submitButton.disabled = true;
+      const originalText = submitButton.textContent;
+      submitButton.textContent = 'Creating...';
+
+      const formData = {
+        groupName: form.groupName.value.trim(),
+        description: form.description.value.trim(),
+        groupType: form.groupType.value
+      };
+
+      try {
+        const response = await fetch('createGroup.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          messageDiv.textContent = '✅ Group created successfully!';
+          messageDiv.classList.add('success');
+          messageDiv.style.display = 'block';
+
+          setTimeout(() => {
+            window.location.href = 'main.php';
+          }, 1500);
+        } else {
+          throw new Error(result.message || 'An unknown error occurred.');
+        }
+      } catch (error) {
+        messageDiv.textContent = '❌ ' + error.message;
+        messageDiv.classList.add('error');
+        messageDiv.style.display = 'block';
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+      }
+    });
+  </script>
+</body>
+</html>

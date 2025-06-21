@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Join Group</title>
+  <style>
+    :root {
+      --light-blue: #59b8ec;
+      --light-pink: #edb3c7;
+      --light-purple: #9c83cb;
+      --button-hover: #5a9afa;
+      --font-dark: #333;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--light-blue), var(--light-pink), var(--light-purple));
+      background-size: 300% 300%;
+      animation: gradientShift 10s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .form-container {
+      background: var(--white);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      width: 320px;
+      text-align: center;
+      transition: all 0.3s ease-in-out;
+    }
+
+    h2 {
+      color: var(--font-dark);
+      margin-bottom: 20px;
+    }
+
+    input[type="number"] {
+      width: 98%;
+      padding: 12px;
+      margin: 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--light-purple);
+      color: var(--font-dark);
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--button-hover);
+      color: white;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>Join Group</h2>
+    <input type="number" id="groupId" placeholder="Enter Group ID" required />
+    <button onclick="joinGroup()">Join</button>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    function joinGroup() {
+      const groupId = document.getElementById('groupId').value;
+      const messageBox = document.getElementById('message');
+
+      if (!groupId) {
+        messageBox.textContent = "Please enter a Group ID.";
+        messageBox.style.color = "red";
+        return;
+      }
+
+      fetch("joinGroup.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ groupId: parseInt(groupId) })
+      })
+      .then(res => res.json())
+      .then(data => {
+        messageBox.textContent = data.message;
+        messageBox.style.color = data.success ? "green" : "red";
+        if (data.success) {
+          setTimeout(() => {
+            window.location.href = "main.php";
+          }, 1500);
+        }
+      })
+      .catch(error => {
+        messageBox.textContent = "Error connecting to server.";
+        messageBox.style.color = "red";
+      });
+    }
+  </script>
+
+</body>
+</html>

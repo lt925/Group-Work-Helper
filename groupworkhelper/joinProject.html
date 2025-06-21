@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Join Project</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(-45deg, #a1c4fd, #c2e9fb, #fbc2eb, #a18cd1);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .form-container {
+      background: white;
+      padding: 30px 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 350px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #7b4397;
+    }
+
+    input[type="number"] {
+      width: 95%;
+      padding: 12px;
+      margin: 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #5a67d8, #6b46c1);
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>Join Project</h2>
+    <input type="number" id="projectId" placeholder="Enter Project ID" required />
+    <button onclick="joinProject()">Join</button>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    function joinProject() {
+      const projectId = document.getElementById('projectId').value;
+      const messageBox = document.getElementById('message');
+
+      if (!projectId) {
+        messageBox.textContent = "Please enter a Project ID.";
+        messageBox.style.color = "red";
+        return;
+      }
+
+      fetch("joinProject.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ idProject: parseInt(projectId) })
+      })
+      .then(res => res.json())
+      .then(data => {
+        messageBox.textContent = data.message;
+        messageBox.style.color = data.success ? "green" : "red";
+        if (data.success) {
+          setTimeout(() => {
+            window.location.href = "main.php";
+          }, 1500);
+        }
+      })
+      .catch(error => {
+        messageBox.textContent = "Error connecting to server.";
+        messageBox.style.color = "red";
+      });
+    }
+  </script>
+
+</body>
+</html>

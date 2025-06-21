@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sliding Login/Register</title>
+  <style>
+    /* Root Variables for Colors */
+    :root {
+      --primary: #007bff;
+      --primary-dark: #0056b3;
+      --gradient-left: #0088ff;
+      --gradient-right: #c040ef;
+      --light-bg: #eee;
+      --form-bg: #ffffff;
+    }
+
+    /* Reset and Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, var(--form-bg), var(--gradient-left));
+      overflow: hidden;
+      animation: fadeBackground 20s ease infinite;
+    }
+
+    @keyframes fadeBackground {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background-color: var(--form-bg);
+      border-radius: 12px;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.25),
+                  0 10px 10px rgba(0,0,0,0.22);
+      position: relative;
+      overflow: hidden;
+      width: 900px;
+      max-width: 100%;
+      min-height: 600px;
+      display: flex;
+    }
+
+    /* Form Containers */
+    .form-container {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 50%;
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: var(--form-bg);
+      transition: all 0.6s ease-in-out;
+      animation: fadeSlideIn 1s ease;
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .sign-up-container {
+      left: 0;
+      opacity: 0;
+      z-index: 1;
+      overflow-y: auto;
+      padding-right: 20px;
+      max-height: 100%;
+    }
+
+    .sign-up-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .sign-up-container::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+
+    .sign-in-container {
+      left: 0;
+      z-index: 2;
+    }
+
+    .container.right-panel-active .sign-in-container {
+      transform: translateX(100%);
+      opacity: 0;
+      z-index: 1;
+    }
+
+    .container.right-panel-active .sign-up-container {
+      transform: translateX(100%);
+      opacity: 1;
+      z-index: 5;
+    }
+
+    /* Overlay */
+    .overlay-container {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+      transition: transform 0.6s ease-in-out;
+      z-index: 100;
+    }
+
+    .container.right-panel-active .overlay-container {
+      transform: translateX(-100%);
+    }
+
+    .overlay {
+      background: linear-gradient(-45deg, var(--gradient-left), var(--gradient-right), var(--primary));
+      background-size: 400% 400%;
+      animation: gradientShift 10s ease infinite;
+      color: #ffffff;
+      position: relative;
+      left: -100%;
+      height: 100%;
+      width: 200%;
+      transform: translateX(0);
+      transition: transform 0.6s ease-in-out;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container.right-panel-active .overlay {
+      transform: translateX(50%);
+    }
+
+    .overlay-panel {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0 40px;
+      text-align: center;
+      top: 0;
+      height: 100%;
+      width: 50%;
+      opacity: 0;
+      animation: fadeSlideIn 1s ease forwards;
+      animation-delay: 0.3s;
+    }
+
+    .overlay-left {
+      transform: translateX(-20%);
+      left: 0;
+    }
+
+    .overlay-right {
+      right: 0;
+      transform: translateX(0);
+    }
+
+    .container.right-panel-active .overlay-left {
+      transform: translateX(0);
+    }
+
+    .container.right-panel-active .overlay-right {
+      transform: translateX(20%);
+    }
+
+    /* Form Fields */
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    input, select {
+      background-color: var(--light-bg);
+      border: none;
+      padding: 12px 15px;
+      margin: 8px 0;
+      width: 100%;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: background-color 0.3s ease, border 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border: 1px solid var(--primary);
+      background-color: #fff;
+    }
+
+    /* Buttons */
+    button {
+      border: none;
+      border-radius: 20px;
+      padding: 12px 45px;
+      background-color: var(--primary);
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    button.ghost {
+      background-color: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+    }
+
+    button.ghost:hover {
+      background-color: #fff;
+      color: var(--primary);
+    }
+
+    /* Headings & Messages */
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .error, .success {
+      margin-top: 10px;
+      font-size: 14px;
+      text-align: center;
+      animation: bounceIn 0.4s ease-out;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+
+    @keyframes bounceIn {
+      0% {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.05);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Responsive Fix for Smaller Screens */
+    @media (max-width: 768px) {
+      body {
+        height: auto;
+        padding: 20px;
+      }
+
+      .container {
+        width: 100%;
+        flex-direction: column;
+        min-height: auto;
+        height: auto;
+      }
+
+      .overlay-container {
+        display: none;
+      }
+
+      .form-container {
+        position: relative;
+        width: 100%;
+        height: auto;
+        box-shadow: none;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .sign-up-container,
+      .sign-in-container {
+        transform: translateX(0) !important;
+        opacity: 1 !important;
+        z-index: 1 !important;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+
+    <!-- Sign Up Form -->
+    <div class="form-container sign-up-container">
+      <form id="registerForm">
+        <h2>Create Account</h2>
+        <input type="text" id="registerUsername" name="username" placeholder="Username" required />
+        <input type="password" id="registerPassword" name="password" placeholder="Password" required />
+        <input type="password" id="registerConfirmPassword" name="confirmPassword" placeholder="Confirm Password" required />
+        <input type="text" id="firstName" name="firstName" placeholder="First Name" required />
+        <input type="text" id="lastName" name="lastName" placeholder="Last Name" required />
+        <input type="email" id="email" name="email" placeholder="Email" required />
+        <input type="tel" id="phoneNum" name="phoneNum" placeholder="Phone Number" required />
+        <input type="date" id="dob" name="dob" required />
+        <select id="gender" name="gender" required>
+          <option value="">-- Select Gender --</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+          <option value="preferNotToSay">Prefer not to say</option>
+        </select>
+        <select id="role" name="role" required>
+          <option value="">-- Select Role --</option>
+          <option value="Student">Student</option>
+          <option value="Teacher">Teacher</option>
+          <option value="Admin">Admin</option>
+        </select>
+        <button type="submit">Register</button>
+        <div class="success" id="register-success-message"></div>
+        <div class="error" id="register-error-message"></div>
+      </form>
+    </div>
+
+    <!-- Sign In Form -->
+    <div class="form-container sign-in-container">
+      <form id="loginForm">
+        <h2>Sign In</h2>
+        <input type="text" id="loginUsername" name="username" placeholder="Username" required />
+        <input type="password" id="loginPassword" name="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+        <div class="error" id="login-error-message"></div>
+      </form>
+    </div>
+
+    <!-- Sliding Overlay -->
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h1>Welcome Back!</h1>
+          <p>To keep connected with us, please login with your personal info</p>
+          <button class="ghost" id="signIn">Login</button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h1>Hello, Friend!</h1>
+          <p>Enter your personal details and start your journey with us</p>
+          <button class="ghost" id="signUp">Register</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sliding & Form JS -->
+  <script>
+    // 滑动切换逻辑
+    const container = document.getElementById("container");
+    document.getElementById("signUp").addEventListener("click", () => {
+      container.classList.add("right-panel-active");
+    });
+    document.getElementById("signIn").addEventListener("click", () => {
+      container.classList.remove("right-panel-active");
+    });
+
+    // 注册逻辑
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const username = document.getElementById('registerUsername').value.trim();
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phoneNum = document.getElementById('phoneNum').value.trim();
+      const dob = document.getElementById('dob').value;
+      const gender = document.getElementById('gender').value;
+      const role = document.getElementById('role').value;
+
+      const errorEl = document.getElementById('register-error-message');
+      const successEl = document.getElementById('register-success-message');
+
+      if (password !== confirmPassword) {
+        errorEl.textContent = 'Passwords do not match.';
+        successEl.textContent = '';
+        return;
+      }
+
+      fetch('register.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username, password, email, phoneNum, dob, gender,
+          firstName, lastName, role
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          successEl.textContent = 'Registration successful!';
+          errorEl.textContent = '';
+          setTimeout(() => {
+          container.classList.remove("right-panel-active"); // 回到登录面板
+          document.getElementById('registerForm').reset();  // 可选：清空表单
+        }, 1500);
+        } else {
+          errorEl.textContent = data.message || 'Registration failed.';
+          successEl.textContent = '';
+        }
+      })
+      .catch(() => {
+        errorEl.textContent = 'Something went wrong.';
+        successEl.textContent = '';
+      });
+    });
+
+    // 登录逻辑
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      const errorMessage = document.getElementById('login-error-message');
+
+      const response = await fetch('login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        window.location.href = 'main.php';
+      } else {
+        errorMessage.textContent = result.message || "Login failed.";
+      }
+    });
+  </script>
+</body>
+</html>
